@@ -66,8 +66,8 @@ def get_probable_num(percentile, n_event, C):
 
 
 def run():
-    # st.markdown("## Uniform-Sum Electronic Lottery - 6 Nums")
-    st.markdown("## 전자추첨 (6자리 숫자 합)")
+    # st.title("Uniform-Sum Electronic Lottery - 6 Nums")
+    st.title("전자추첨 (6자리 숫자 합)")
 
     # n : [각 숫자 최대값] + 1
     n = st.slider("각 숫자 최대값", value=9, min_value=1, max_value=11, step=1) + 1
@@ -104,7 +104,7 @@ def run():
 
     # 필요한 숫자 합 계산
     v = get_probable_num(percentile, n_event, C)
-    st.text(f'Maybe you need {v} or more.')
+    st.markdown(f'### Maybe you need **{v}** or more.')
 
     #
     # plot
