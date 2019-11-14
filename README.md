@@ -2,7 +2,7 @@
 
 ```bash
 git clone https://github.com/oiotoxt/UniformSumElectronicLottery.git
-cd UniformSum
+cd UniformSumElectronicLottery
 
 virtualenv -p python3 .venv
 source .venv/bin/activate
