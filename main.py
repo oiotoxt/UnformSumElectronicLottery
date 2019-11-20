@@ -67,10 +67,14 @@ def get_probable_num(percentile, n_event, C):
 
 def run():
     # st.title("Uniform-Sum Electronic Lottery - 6 Nums")
-    st.title("전자추첨 (6자리 숫자 합)")
+    st.markdown(
+        '''## 당첨 숫자 예측
+        경쟁률이 [3.5 : 1] 이라면 아래 슬라이드에서 3.5를 선택해 주세요.
+        ''')
 
     # n : [각 숫자 최대값] + 1
-    n = st.slider("각 숫자 최대값", value=9, min_value=1, max_value=11, step=1) + 1
+    # n = st.slider("각 숫자 최대값", value=9, min_value=1, max_value=11, step=1) + 1  # 임시로 주석 처리
+    n = 10
 
     dft_r = 2.0
 
@@ -104,7 +108,8 @@ def run():
 
     # 필요한 숫자 합 계산
     v = get_probable_num(percentile, n_event, C)
-    st.markdown(f'### Maybe you need **{v}** or more.')
+    # st.markdown(f'### Maybe you need **{v}** or more.')
+    st.markdown(f'### 당첨되려면 아마도 **{v}** 이상이 필요할거에요~')
 
     #
     # plot
