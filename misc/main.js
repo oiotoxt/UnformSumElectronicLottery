@@ -7,14 +7,13 @@ var C = [      1,       7,      28,      84,     210,     462,     924,
           987666,  991998,  994995,  996997,  998284,  999076,  999538,
           999790,  999916,  999972,  999993,  999999, 1000000];
 
-
 // [3.5 대 1] 이면 rate = 3.5
 function get_probable_num(rate) {
     if (rate < 1) return 0;
-    var pct = 1 - (1 / rate);
-    if (pct >= 1) return (C.length - 1);
+    var pct = (1 - (1 / rate)) * 1e6;
+    if (pct >= 1e6) return (C.length - 1);
     for (i=0; i<C.length; ++i)
-        if (pct <= C[i] / 1e6)
+        if (pct <= C[i])
             return i;
 }
 
