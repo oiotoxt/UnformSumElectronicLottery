@@ -10,22 +10,13 @@ var C = [      1,       7,      28,      84,     210,     462,     924,
 
 // [3.5 대 1] 이면 rate = 3.5
 function get_probable_num(rate) {
-    if (rate < 1.0) rate = 1.0;
-
-    percentile = 1.0 - (1.0 / rate);
-    document.write("<P>Target percentile : " + percentile * 100.0 + "+</P>");
-
-    if (percentile < 0) return 0;
-    if (percentile >= 1) return C.length - 1;
-
+    if (rate < 1) return 0;
+    percentile = 1 - (1 / rate);
+    if (percentile >= 1) return (C.length - 1);
     for (i=0; i<C.length; ++i)
         if (percentile <= C[i] / 1e6)
             return i;
 }
 
-function show_probable_num(rate) {
-    v = get_probable_num(rate);
-    document.write("<P>당첨되려면 아마도 " + v + " 이상이 필요할거에요~</P>");
-}
-
-show_probable_num(2.0);
+ret = get_probable_num(2.0)
+console.log(ret)
