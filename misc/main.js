@@ -11,7 +11,7 @@ var C = [      1,       7,      28,      84,     210,     462,     924,
 // [3.5 대 1] 이면 rate = 3.5
 function get_probable_num(rate) {
     if (rate < 1) return 0;
-    pct = 1 - (1 / rate);
+    var pct = 1 - (1 / rate);
     if (pct >= 1) return (C.length - 1);
     for (i=0; i<C.length; ++i)
         if (pct <= C[i] / 1e6)
