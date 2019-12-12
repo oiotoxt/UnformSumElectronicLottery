@@ -3,7 +3,7 @@ import time
 
 def create_probability_table(n):
     '''
-        n : 각 자리에 가능한 값 갯수
+        n : 각 자리에 가능한 값 갯수. [0,9]라면 10
     '''
     digit = 6
     array_len = ((n - 1) * digit) + 1
@@ -131,10 +131,10 @@ def run(rate):
     digit = 6
     n = 10  # [0, 9]
 
-    # scale = 1  # [0,  9]
+    scale = 1  # [0,  9]
     # scale = 2  # [0, 19]
     # scale = 3  # [0, 29]
-    scale = 4  # [0, 39]
+    # scale = 4  # [0, 39]
     # scale = 5  # [0, 49]
 
     scaled_n = n * scale
@@ -148,7 +148,7 @@ def run(rate):
     percentile = 1.0 - (1.0 / rate)
     print(f'DEBUG: Target percentile : {percentile * 100.0}+')
 
-    create_prob_table = False
+    create_prob_table = True
     if create_prob_table:
         P, C = create_probability_table(scaled_n)
     else:
