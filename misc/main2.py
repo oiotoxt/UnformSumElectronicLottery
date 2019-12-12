@@ -7,8 +7,8 @@ def create_probability_table(n):
     '''
     digit = 6
     array_len = ((n - 1) * digit) + 1
-    P = np.zeros(array_len, dtype=np.int)  # 각 숫자합(= index)이 발생한 횟수를 여기에 저장
-    C = np.zeros(array_len, dtype=np.int)  # 각 숫자합(= index)이 발생한 횟수를 여기에 저장(Cumulative)
+    P = np.zeros(array_len, dtype=np.int)  # PMF. 각 숫자합(= index)이 발생한 횟수를 여기에 저장
+    C = np.zeros(array_len, dtype=np.int)  # CDF. 각 숫자합(= index)이 발생한 횟수를 여기에 저장(Cumulative)
 
     # compute P
     start_time = time.time()
