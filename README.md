@@ -11,5 +11,5 @@ source .venv/bin/activate
 pip install streamlit --upgrade
 pip install matplotlib
 
-streamlit run main.py
+streamlit run app_streamlit.py
 ```
