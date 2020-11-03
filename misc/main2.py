@@ -105,7 +105,7 @@ C_10_4 = [      1,          7,         28,         84,        210,
 
 
 
-# def get_probable_num(rate, n_event, C):
+# def predict(rate, n_event, C):
 #     if rate < 1.0:
 #         return 0
 #     percentile = (1 - (1 / rate)) * n_event

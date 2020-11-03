@@ -1,4 +1,4 @@
-C =   [      1,       7,      28,      84,     210,     462,     924,
+CDF = [      1,       7,      28,      84,     210,     462,     924,
           1716,    3003,    5005,    8002,   12334,   18396,   26628,
          37500,   51492,   69069,   90651,  116578,  147070,  182197,
         221859,  265776,  313488,  364365,  417627,  472374,  527626,
@@ -8,8 +8,8 @@ C =   [      1,       7,      28,      84,     210,     462,     924,
         999790,  999916,  999972,  999993,  999999, 1000000]
 
 
-# [3.5 대 1] 이면 rate = 3.5
-def get_probable_num(rate, C):
+# 경쟁률이 [3.5 대 1] 이면 rate = 3.5
+def predict(rate, CDF):
     if rate < 1.0:
         rate = 1.0
 
@@ -17,21 +17,22 @@ def get_probable_num(rate, C):
     percentile = 1.0 - (1.0 / rate)
     print(f'Target percentile : {percentile * 100.0}+')
 
-    if percentile < 0:
+    if percentile <= 0:
         return 0
     if percentile >= 1:
-        return len(C) - 1
+        return len(CDF) - 1
 
-    for i in range(len(C)):
-        if percentile <= C[i] / 1e6:
+    percentile *= CDF[-1]  # 1e6
+    for i in range(len(CDF)):
+        if percentile <= CDF[i]:
             return i
     raise Exception('hmm')
 
 
 def run(rate):
     # 필요한 숫자 합 계산
-    v = get_probable_num(rate, C)
-    print(f'### 당첨되려면 아마도 **{v}** 이상이 필요할거에요~')
+    pred = predict(rate, CDF)
+    print(f'당첨되려면 아마도 {pred} 이상이 필요할거에요~')
 
 
 run(2.0)

@@ -53,7 +53,7 @@ def create_probability_table(n):
     return array_len, n_event, P, normalized_P, max_P, C
 
 
-def get_probable_num(percentile, n_event, C):
+def predict(percentile, n_event, C):
     if percentile < 0:
         return 0
     if percentile >= 1:
@@ -107,9 +107,9 @@ def run():
     st.text(f'Target percentile : {percentile * 100.0}+')
 
     # 필요한 숫자 합 계산
-    v = get_probable_num(percentile, n_event, C)
-    # st.markdown(f'### Maybe you need **{v}** or more.')
-    st.markdown(f'### 당첨되려면 아마도 **{v}** 이상이 필요할거에요~')
+    pred = predict(percentile, n_event, C)
+    # st.markdown(f'### Maybe you need **{pred}** or more.')
+    st.markdown(f'### 당첨되려면 아마도 **{pred}** 이상이 필요할거에요~')
 
     #
     # plot
@@ -127,14 +127,14 @@ def run():
     ax.plot(x1, normalized_P, 'r')
 
     # 영역 (색칠)
-    x2 = np.asarray([v, v+1], dtype=np.int)
-    ax.fill_between(x2-0.5, normalized_P[v:v+1], 0, alpha=0.3, color='b')
+    x2 = np.asarray([pred, pred+1], dtype=np.int)
+    ax.fill_between(x2-0.5, normalized_P[pred:pred+1], 0, alpha=0.3, color='b')
 
     # 세로 라인
-    ax.axvline(x=v,label='min = {}'.format(v))
+    ax.axvline(x=pred,label='min = {}'.format(pred))
 
     # 영역 (숫자)
-    ax.text(v, normalized_P[v] * 0.33, '{:02.2f}%~{:02.2f}%'.format(C[v-1] / n_event * 100.0 if v > 0 else 0.0, C[v] / n_event * 100.0), bbox=dict(facecolor='yellow', alpha=0.5))
+    ax.text(pred, normalized_P[pred] * 0.33, '{:02.2f}%~{:02.2f}%'.format(C[pred-1] / n_event * 100.0 if pred > 0 else 0.0, C[pred] / n_event * 100.0), bbox=dict(facecolor='yellow', alpha=0.5))
 
     ax.legend()
     st.pyplot(fig)
