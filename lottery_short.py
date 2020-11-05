@@ -1,6 +1,12 @@
-import numpy as np
+PDF = [     1,     6,    21,    56,   126,   252,   462,   792,  1287,
+          2002,  2997,  4332,  6062,  8232, 10872, 13992, 17577, 21582,
+         25927, 30492, 35127, 39662, 43917, 47712, 50877, 53262, 54747,
+         55252, 54747, 53262, 50877, 47712, 43917, 39662, 35127, 30492,
+         25927, 21582, 17577, 13992, 10872,  8232,  6062,  4332,  2997,
+          2002,  1287,   792,   462,   252,   126,    56,    21,     6,
+             1]
 
-_CDF = [     1,       7,      28,      84,     210,     462,     924,
+CDF = [     1,       7,      28,      84,     210,     462,     924,
           1716,    3003,    5005,    8002,   12334,   18396,   26628,
          37500,   51492,   69069,   90651,  116578,  147070,  182197,
         221859,  265776,  313488,  364365,  417627,  472374,  527626,
@@ -11,36 +17,33 @@ _CDF = [     1,       7,      28,      84,     210,     462,     924,
 
 
 # 경쟁률이 [3.5 대 1] 이면 rate = 3.5
-def predict(rate, CDF):
+def predict(rate):
     if rate < 1.0:
         rate = 1.0
-
-    percentile = 1.0 - (1.0 / rate)
-    percentile *= CDF[-1]
+    percentile = (1.0 - (1.0 / rate)) * CDF[-1]
     for idx in range(len(CDF)):
         if percentile <= CDF[idx]:
             return idx
-    raise Exception('읭?')
 
 
 def _test():
-    max_num = len(_CDF) - 1  # 54
+    max_num = len(CDF) - 1  # 54
 
     import sys
 
-    pred = predict(-sys.float_info.max, _CDF)
+    pred = predict(-sys.float_info.max)
     assert pred == 0
 
-    pred = predict(0.0, _CDF)
+    pred = predict(0.0)
     assert pred == 0
 
-    pred = predict(1.0, _CDF)
+    pred = predict(1.0)
     assert pred == 0
 
-    pred = predict(2.0, _CDF)
+    pred = predict(2.0)
     assert pred == max_num * 0.5  # 27
 
-    pred = predict(sys.float_info.max, _CDF)
+    pred = predict(sys.float_info.max)
     assert pred == max_num
 
 

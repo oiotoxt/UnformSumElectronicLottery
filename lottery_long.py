@@ -1,10 +1,8 @@
-import numpy as np
-
 #
 # 확률 분포
 #
 
-PDF = np.zeros(55, dtype=np.int)  # 각 숫자합이 발생한 횟수를 여기에 저장
+PDF = [0] * 55  # 각 숫자합이 발생한 횟수를 여기에 저장
 for i0 in range(10):
     for i1 in range(10):
         for i2 in range(10):
@@ -20,7 +18,7 @@ for idx in range(55):
 # 확률 분포 (누적)
 #
 
-CDF = np.zeros(55, dtype=np.int)  # 각 숫자합이 발생한 횟수를 누적해 가며 여기에 저장
+CDF = [0] * 55  # 각 숫자합이 발생한 횟수를 누적해 가며 여기에 저장
 for idx in range(55):
     CDF[idx] = CDF[idx-1] + PDF[idx]
 
@@ -33,9 +31,6 @@ for idx in range(55):
 
 rate = 17
 print(f'경쟁률 [{rate} 대 1]')
-
-if rate < 1.0:
-    rate = 1.0
 
 percentile = 1.0 - (1.0 / rate)
 print(f'목표 백분위 : {percentile * 100.0}+')
