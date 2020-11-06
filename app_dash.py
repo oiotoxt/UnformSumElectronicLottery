@@ -96,7 +96,7 @@ app.layout = html.Div(children=[
                 _mark[4]: str(_conv[4]),
                 _mark[5]: str(_conv[5]),
             },
-            value=40.0,
+            value=int(_mark[1]*0.1*2),
             updatemode='drag'
         ),
 
@@ -174,4 +174,4 @@ def update_output_guess(value):
 
 
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8501, debug=True)
+    app.run_server(host='0.0.0.0', port=8501, debug=False)
