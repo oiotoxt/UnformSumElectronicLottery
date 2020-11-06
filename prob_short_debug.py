@@ -17,6 +17,21 @@ CDF = [     1,       7,      28,      84,     210,     462,     924,
 
 
 # 경쟁률이 [3.5 대 1] 이면 rate = 3.5
+def predict_debug(rate):
+    print(f'rate={rate}')
+    if rate < 1.0:
+        rate = 1.0
+    percentile = (1.0 - (1.0 / rate))
+    rank = percentile * CDF[-1]
+    print(f'rate={rate}, percentile={percentile}, rank={rank}')
+    n = len(CDF)
+    for idx in range(n):
+        if rank <= CDF[idx]:
+            print(f'percentile={percentile}, CDF[idx]={CDF[idx]}, idx={idx}')
+            return idx
+
+
+# 경쟁률이 [3.5 대 1] 이면 rate = 3.5
 def predict(rate):
     if rate < 1.0:
         rate = 1.0
@@ -26,6 +41,18 @@ def predict(rate):
         if percentile < CDF[idx]:
             return idx
     return n - 1
+
+
+# 참고
+# 경쟁률 [백만 : 1] 결과가 54가 아니라 53이 나와도 된다면 다음처럼 등호 사용
+# 대신 float-max 값 처리 가능
+def predict_old(rate):
+    if rate < 1.0:
+        rate = 1.0
+    percentile = (1.0 - (1.0 / rate)) * CDF[-1]
+    for idx in range(len(CDF)):
+        if percentile <= CDF[idx]:
+            return idx
 
 
 # 몇몇 특이값으로 테스트

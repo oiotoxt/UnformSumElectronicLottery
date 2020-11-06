@@ -5,7 +5,6 @@
 
 import numpy as np
 import plotly.express as px
-import plotly.graph_objects as go
 import dash
 from dash.dependencies import Input
 from dash.dependencies import Output
@@ -20,16 +19,6 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-# ------------------------------------------------------------------------------
-fig = go.Figure(
-    data=[go.Bar(x=[1, 2, 3], y=[1, 3, 2])],
-    layout=go.Layout(
-        title=go.layout.Title(text="A Figure Specified By A Graph Object")
-    )
-)
-
-# ------------------------------------------------------------------------------
-n = 10
 fig_pdf = px.bar(y=prob.PDF,
                  labels={'x': '숫자 합', 'y': '전체 백만 명 중 사람 수'})
 
@@ -46,23 +35,13 @@ fig_pdf.update_layout(
     title_x=0.5,
     xaxis=dict(tickmode='linear')
 )
-# ------------------------------------------------------------------------------
+
 fig_cdf = px.bar(y=prob.CDF,
                  labels={'x': '숫자 합', 'y': '전체 백만 명 중 사람 수 (누적)'})
+
 fig_cdf.update_layout(
     xaxis=dict(tickmode='linear')
 )
-# ------------------------------------------------------------------------------
-
-# group_labels = ['prob']
-# hist_data = [norm_PDF]
-# # fig2 = ff.create_distplot(hist_data, group_labels)
-# fig_norm_pdf = px.line(norm_PDF)
-
-# bar_x = [i for i in range(array_len)]
-# bar_y = [0] * array_len
-# bar_y[27] = max_PDF
-# fig_norm_pdf.add_bar(x=bar_x, y=bar_y)
 
 def convert_slider_value(val):
     mark = [200, 400, 600, 800, 1000]
@@ -182,35 +161,14 @@ app.layout = html.Div(children=[
         #     figure=fig_cdf
         # ),
 
-        # dcc.Graph(
-        #     id='example-graph',
-        #     figure=fig_norm_pdf
-        # )
-
-        # dcc.Graph(
-        #     id='Test',
-        #     figure=fig
-        # ),
-
-        html.Div(id='hidden-div', style={'display': 'none'})
+        # html.Div(id='hidden-div', style={'display': 'none'})
     ])
 ])
 
 
-# @app.callback(
-#     Output('my-slider', 'value'),
-#     [Input('rate', 'value'),
-#     Input('graph pdf', 'figure')])
-# def update_output_input(val, fig):
-#     # x0=-0.9, y0=0, x1=27, y1=60000,
-#     print(fig['layout']['shapes'][0]['x1'])
-#     fig['layout']['shapes'][0]['x1'] = val
-#     return val
-
-import json
-
 def rate_to_percentile(rate):
     return 1.0 - (1.0 / rate)
+
 
 @app.callback(
     Output('graph pdf', 'figure'),
@@ -221,12 +179,14 @@ def update_output_input(val, fig):
         fig['layout']['shapes'][0]['x1'] = prob.predict(val)
     return fig
 
+
 @app.callback(
     Output('rate', 'value'),
     [Input('my-slider', 'value')])
 def update_output_slider(value):
     # print('``````````````````````````', value)
     return convert_slider_value(value)
+
 
 @app.callback(
     [Output('output-warning', 'children'),
@@ -243,4 +203,4 @@ def update_output_guess(value):
 
 
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8050, debug=True)
+    app.run_server(host='0.0.0.0', port=8501, debug=True)

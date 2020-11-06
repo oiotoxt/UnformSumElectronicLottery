@@ -1,15 +1,7 @@
-## Usage
+## Run (Docker)
 
 ```bash
-tmux ls
+docker build -t tmp/lottery -f Dockerfile .
 
-git clone https://github.com/oiotoxt/UniformSumElectronicLottery.git
-cd UniformSumElectronicLottery
-
-virtualenv -p python3 .venv
-source .venv/bin/activate
-pip install streamlit --upgrade
-pip install matplotlib
-
-streamlit run app_streamlit.py
+docker run -d --restart=unless-stopped --name lottery01 -p=8501:8501 tmp/lottery
 ```
