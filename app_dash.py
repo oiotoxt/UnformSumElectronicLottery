@@ -42,12 +42,12 @@ fig_pdf.update_layout(
     xaxis=dict(tickmode='linear')
 )
 
-fig_cdf = px.bar(y=prob.CDF,
-                 labels={'x': '숫자 합', 'y': '전체 백만 명 중 사람 수 (누적)'})
+# fig_cdf = px.bar(y=prob.CDF,
+#                  labels={'x': '숫자 합', 'y': '전체 백만 명 중 사람 수 (누적)'})
 
-fig_cdf.update_layout(
-    xaxis=dict(tickmode='linear')
-)
+# fig_cdf.update_layout(
+#     xaxis=dict(tickmode='linear')
+# )
 
 app.layout = html.Div(children=[
     html.Center([
@@ -96,7 +96,7 @@ app.layout = html.Div(children=[
                 _mark[4]: str(_conv[4]),
                 _mark[5]: str(_conv[5]),
             },
-            value=40.0,
+            value=int(_mark[1]*0.1)*2,
             updatemode='drag'
         ),
 
@@ -174,4 +174,4 @@ def update_output_guess(value):
 
 
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8501, debug=True)
+    app.run_server(host='0.0.0.0', port=8502, debug=False)
