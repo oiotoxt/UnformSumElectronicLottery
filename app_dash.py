@@ -96,11 +96,7 @@ app.layout = html.Div(children=[
                 _mark[4]: str(_conv[4]),
                 _mark[5]: str(_conv[5]),
             },
-<<<<<<< HEAD
             value=int(_mark[1]*0.1)*2,
-=======
-            value=int(_mark[1]*0.1*2),
->>>>>>> 654106e0d9d52ed0050b86235999941f9d71d56c
             updatemode='drag'
         ),
 
