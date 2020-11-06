@@ -1,4 +1,4 @@
-var C = [      1,       7,      28,      84,     210,     462,     924,
+var CDF = [      1,       7,      28,      84,     210,     462,     924,
             1716,    3003,    5005,    8002,   12334,   18396,   26628,
            37500,   51492,   69069,   90651,  116578,  147070,  182197,
           221859,  265776,  313488,  364365,  417627,  472374,  527626,
@@ -10,12 +10,16 @@ var C = [      1,       7,      28,      84,     210,     462,     924,
 // 경쟁률이 [3.5 대 1] 이면 rate = 3.5
 function predict(rate) {
     if (rate < 1) return 0;
-    var pct = (1 - (1 / rate)) * 1e6;
-    if (pct >= 1e6) return (C.length - 1);
-    for (i=0; i<C.length; ++i)
-        if (pct <= C[i])
-            return i;
+    var pct = (1 - (1 / rate)) * CDF[CDF.length-1];
+    n = CDF.length
+    for (idx=0; idx<n; ++idx)
+        if (pct < CDF[idx])
+            return idx;
+    return n - 1
 }
 
 ret = predict(2.0)
+console.log(ret)
+
+ret = predict(1e6)
 console.log(ret)

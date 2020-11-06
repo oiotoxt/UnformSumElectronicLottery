@@ -19,7 +19,7 @@ CDF = [     1,       7,      28,      84,     210,     462,     924,
 # 경쟁률이 [3.5 대 1] 이면 rate = 3.5
 def predict(rate):
     if rate < 1.0:
-        rate = 1.0
+        return 0
     percentile = (1.0 - (1.0 / rate)) * CDF[-1]
     n = len(CDF)
     for idx in range(n):
