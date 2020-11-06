@@ -38,7 +38,7 @@ print(f'목표 백분위 : {percentile * 100.0}+')
 percentile *= 1000000
 predict = 0
 for idx in range(55):
-    if percentile <= CDF[idx]:
+    if percentile < CDF[idx]:
         predict = idx
         break
 

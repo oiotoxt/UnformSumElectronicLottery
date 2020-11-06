@@ -1,104 +1,246 @@
+# refs:
+#   https://dash.plotly.com/dash-core-components/graph
+#   https://dash.plotly.com/basic-callbacks
+#   https://dash.plotly.com/live-updates
+
 import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
 import dash
+from dash.dependencies import Input
+from dash.dependencies import Output
+from dash.dependencies import State
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.express as px
-# import plotly.figure_factory as ff
 
-import prob
+import prob_short as prob
 
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
-
-n = 10
-array_len, n_event, PDF, norm_PDF, max_PDF, CDF = prob.create_probability_table(n)
-# print(norm_PDF)
-# hist_data = [norm_PDF]
-group_labels = ['prob']
-
-
-# fig_pdf = px.bar(PDF, x='숫자 합', y='경우의 수')
-fig_pdf = px.bar(PDF)
-fig_pdf.update_layout(
-    xaxis=dict(tickmode='linear')
+# ------------------------------------------------------------------------------
+fig = go.Figure(
+    data=[go.Bar(x=[1, 2, 3], y=[1, 3, 2])],
+    layout=go.Layout(
+        title=go.layout.Title(text="A Figure Specified By A Graph Object")
+    )
 )
 
-fig_cdf = px.bar(CDF)
+# ------------------------------------------------------------------------------
+n = 10
+fig_pdf = px.bar(y=prob.PDF,
+                 labels={'x': '숫자 합', 'y': '전체 백만 명 중 사람 수'})
+
+fig_pdf.add_shape(type="rect",
+    x0=0, y0=0, x1=27, y1=60000,
+    line=dict(
+        width=0,
+    ),
+    fillcolor='rgba(255, 0, 0, 0.2)',
+)
+
+fig_pdf.update_layout(
+    # title_text='백만 명이 추첨에 참여한 경우',
+    title_x=0.5,
+    xaxis=dict(tickmode='linear')
+)
+# ------------------------------------------------------------------------------
+fig_cdf = px.bar(y=prob.CDF,
+                 labels={'x': '숫자 합', 'y': '전체 백만 명 중 사람 수 (누적)'})
 fig_cdf.update_layout(
     xaxis=dict(tickmode='linear')
 )
+# ------------------------------------------------------------------------------
 
-# fig2 = ff.create_distplot(hist_data, group_labels)
-fig_norm_pdf = px.line(norm_PDF)
+# group_labels = ['prob']
+# hist_data = [norm_PDF]
+# # fig2 = ff.create_distplot(hist_data, group_labels)
+# fig_norm_pdf = px.line(norm_PDF)
 
-bar_x = [i for i in range(array_len)]
-bar_y = [0] * array_len
-bar_y[27] = max_PDF
-fig_norm_pdf.add_bar(x=bar_x, y=bar_y)
+# bar_x = [i for i in range(array_len)]
+# bar_y = [0] * array_len
+# bar_y[27] = max_PDF
+# fig_norm_pdf.add_bar(x=bar_x, y=bar_y)
 
-################################################################################
-from dash.dependencies import Input, Output
-
-
-ALLOWED_TYPES = (
-    "text", "number", "password", "email", "search",
-    "tel", "url", "range", "hidden",
-)
+def convert_slider_value(val):
+    mark = [200, 400, 600, 800, 1000]
+    conv = [10, 100, 1000, 10000, 1000000]
+    if val <= 2.0:
+        val = 1.0
+    elif val <= mark[0]:
+        val /= mark[0] / 10
+    elif val <= mark[1]:
+        val = ((val - mark[0]) / (mark[1] - mark[0]) * (conv[1] - conv[0])) + conv[0]
+        val = int(val)
+    elif val <= mark[2]:
+        val = ((val - mark[1]) / (mark[2] - mark[1]) * (conv[2] - conv[1])) + conv[1]
+        val = int(val)
+    elif val <= mark[3]:
+        val = ((val - mark[2]) / (mark[3] - mark[2]) * (conv[3] - conv[2])) + conv[2]
+        val = int(val)
+    elif val <= mark[4]:
+        val = ((val - mark[3]) / (mark[4] - mark[3]) * (conv[4] - conv[3])) + conv[3]
+        val = int(val)
+    return val
 
 app.layout = html.Div(children=[
-        html.Center([
-            html.H1(children='당첨 숫자 예측'),
+    html.Center([
+        # html.H1(children='당첨 숫자 예측',
+        #         style={'margin-top': '40px', 'margin-bottom': '60px'}
+        #         ),
 
-            html.Div(children='경쟁률을 입력하세요.'),
+        html.Br(),
 
-            dcc.Input(
-                id='competition ratio',
-                type='number',
-                placeholder='2.0'
-            ),
+        dcc.Markdown('''
+            # 당첨 숫자 예측
+        '''),
 
-            dcc.Graph(
-                id='graph pdf',
-                figure=fig_pdf
-            ),
+        html.Br(),
 
-            dcc.Graph(
-                id='graph cdf',
-                figure=fig_cdf
-            ),
+        dcc.Markdown('''
+            ```경쟁률이 [3.5 대 1]이라면 [3.5]를 입력해 주세요```
+        '''),
 
-            dcc.Graph(
-                id='example-graph',
-                figure=fig_norm_pdf
-            )
-        ])
-    ] +
-    [
+        html.Div(id='output-warning',
+                 style={'color': 'red', 'margin-bottom': '0px'}
+                 ),
+
         dcc.Input(
-            id="input_{}".format(_),
-            type=_,
-            placeholder="input type {}".format(_),
-        )
-        for _ in ALLOWED_TYPES
-    ]
-    + [html.Div(id="out-all-types")]
-)
+            id='rate',
+            type='number',
+            placeholder='경쟁률',
+            min=1,
+            max=1e6,
+            # step=0.05,
+            value=2.0,
+            style={'textAlign': 'center', 'margin-bottom': '0px'}
+        ),
+
+        html.Div(id='output-msg1',
+                 style={'margin-top': '20px','margin-bottom': '20px'}
+                 ),
+
+        # dcc.Slider(
+        #     id='my-slider',
+        #     min=1,
+        #     max=1e6,
+        #     step=0.05,
+        #     # tooltip={'always_visible': True},
+        #     marks={
+        #         1: '1',
+        #         200000: '10',
+        #         400000: '100',
+        #         600000: '1000',
+        #         800000: '10000',
+        #         1000000: '1000000',
+        #     },
+        #     value=2.0,
+        #     updatemode='drag'
+        # ),
+
+        dcc.Slider(
+            id='my-slider',
+            min=20,
+            max=1000,
+            step=1,
+            # tooltip={'always_visible': True},
+            marks={
+                20: '1',
+                200: '10',
+                400: '100',
+                600: '1000',
+                800: '10000',
+                1000: '1000000',
+            },
+            value=40.0,
+            updatemode='drag'
+        ),
+
+        html.Div(id='output-msg2',
+                 style={ 'font-weight': 'bold',
+                        'font-size': '2.0em',
+                     'margin-bottom': '40px'}
+                 ),
+
+        # dcc.Graph(id='live-update-graph'),
+
+        dcc.Graph(
+            id='graph pdf',
+            figure=fig_pdf,
+            # config={
+            #     'editable': True,
+            #     'edits': {
+            #         'shapePosition': True,
+            #     }
+            # }
+        ),
+
+        # dcc.Graph(
+        #     id='graph cdf',
+        #     figure=fig_cdf
+        # ),
+
+        # dcc.Graph(
+        #     id='example-graph',
+        #     figure=fig_norm_pdf
+        # )
+
+        # dcc.Graph(
+        #     id='Test',
+        #     figure=fig
+        # ),
+
+        html.Div(id='hidden-div', style={'display': 'none'})
+    ])
+])
+
+
+# @app.callback(
+#     Output('my-slider', 'value'),
+#     [Input('rate', 'value'),
+#     Input('graph pdf', 'figure')])
+# def update_output_input(val, fig):
+#     # x0=-0.9, y0=0, x1=27, y1=60000,
+#     print(fig['layout']['shapes'][0]['x1'])
+#     fig['layout']['shapes'][0]['x1'] = val
+#     return val
+
+import json
+
+def rate_to_percentile(rate):
+    return 1.0 - (1.0 / rate)
 
 @app.callback(
-    Output("out-all-types", "children"),
-    [Input("input_{}".format(_), "value") for _ in ALLOWED_TYPES],
-)
+    Output('graph pdf', 'figure'),
+    [Input('rate', 'value')],
+    [State('graph pdf', 'figure')])
+def update_output_input(val, fig):
+    if val is not None:
+        fig['layout']['shapes'][0]['x1'] = prob.predict(val)
+    return fig
 
-def cb_render(*vals):
-    return " | ".join((str(val) for val in vals if val))
-################################################################################
+@app.callback(
+    Output('rate', 'value'),
+    [Input('my-slider', 'value')])
+def update_output_slider(value):
+    # print('``````````````````````````', value)
+    return convert_slider_value(value)
+
+@app.callback(
+    [Output('output-warning', 'children'),
+    Output('output-msg1', 'children'),
+    Output('output-msg2', 'children')],
+    [Input('rate', 'value')])
+def update_output_guess(value):
+    if value is None:
+        return [f'유효 입력 범위 : [1 ~ 백만]', f'목표 백분위 : ???', f'당첨되려면 아마도 ??? 이상이 필요할거에요~']
+    else:
+        percentile = rate_to_percentile(value) * 100
+        pred = prob.predict(value)
+        return [f'', f'목표 백분위 : {percentile:.8f}+', f'당첨되려면 아마도 {pred} 이상이 필요할거에요~']
+
+
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8501, debug=True)
-
-
-# pip install dash==1.16.3 plotly pandas scipy
-# http://127.0.0.1:8050/
-# http://meta.nctts.net:8050/
+    app.run_server(host='0.0.0.0', port=8050, debug=True)
