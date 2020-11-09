@@ -220,11 +220,10 @@ def rate_to_percentile(rate):
 
 def predict(target_percentile):
     rank = target_percentile * CDF[-1]
-    n = len(CDF)
-    for idx in range(n):
+    for idx in range(len(CDF)):
         if rank < CDF[idx]:
             return idx
-    return n - 1
+    return len(CDF) - 1
 ```
 
 
