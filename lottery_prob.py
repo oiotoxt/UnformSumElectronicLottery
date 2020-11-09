@@ -20,7 +20,7 @@ CDF = [     1,       7,      28,      84,     210,     462,     924,
 def rate_to_percentile(rate):
     return 0 if (rate < 1.0) else (1.0 - (1.0 / rate))
 
-# 경쟁률이 [3.5 대 1] 이면 target_percentile = 0.5
+
 def predict(target_percentile):
     rank = target_percentile * CDF[-1]
     n = len(CDF)

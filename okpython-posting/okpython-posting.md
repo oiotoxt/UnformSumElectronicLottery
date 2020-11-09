@@ -6,14 +6,13 @@
 
 ## ② 파이썬을 통해 어떻게 해결하고자 하였나요? (접근방법, 코딩방식 등)
 
-1. 전자추첨 이해
-2. 당첨 숫자 예측
-3. 시각화
+1. 전자 추첨 이해
+1. 당첨 숫자 예측
+1. 시각화
 
 
 
 #### 데모 : [http://172.19.148.94:8501/](http://172.19.148.94:8501/)
-
 (혹시 접속이 불가능한 IP 대역이 있을지도 모릅니다)
 
 
@@ -218,7 +217,7 @@ CDF = [     1,       7,      28,      84,     210,     462,     924,
 def rate_to_percentile(rate):
     return 0 if (rate < 1.0) else (1.0 - (1.0 / rate))
 
-# 경쟁률이 [3.5 대 1] 이면 target_percentile = 0.5
+
 def predict(target_percentile):
     rank = target_percentile * CDF[-1]
     n = len(CDF)
@@ -295,7 +294,7 @@ from dash.dependencies import State
 import dash_core_components as dcc
 import dash_html_components as html
 
-import lottery_prob as prob
+import lottery_prob as prob  # 저 위의 <쇼트 프로그램>
 
 
 _mark = [0, 400, 600, 800, 900, 1000]
@@ -385,6 +384,8 @@ server.layout = html.Div(children=[
             id='graph-pdf',
             figure=fig_pdf,
         ),
+
+        html.A("Null - 알고리즘 설명 및 코드", href='https://null.ncsoft.com/questions/4781', target="_blank"),
     ])
 ])
 
@@ -423,13 +424,12 @@ def update_output_guess(value):
         return [f'유효 입력 범위 : [1 ~ 백만]', f'목표 백분위 : ???', f'당첨되려면 아마도 ??? 이상이 필요할거에요~']
     else:
         target_percentile = prob.rate_to_percentile(value)
-        print(target_percentile)
         pred = prob.predict(target_percentile)
         return [f'', f'목표 백분위 : {target_percentile*100:.8f}+', f'당첨되려면 아마도 {pred} 이상이 필요할거에요~']
 
 
 if __name__ == '__main__':
-    server.run_server(host='0.0.0.0', port=8501, debug=True)
+    server.run_server(host='0.0.0.0', port=8501, debug=False)
 ```
 
 
@@ -444,11 +444,7 @@ if __name__ == '__main__':
 
 "파이썬 한번 해볼까?" 생각 중이신 분들에게 Tip을 드리자면,
 
-
-
 바로 써먹기 좋은 언어는 내부 작동 원리를 이해하기가 오히려 어렵더군요.
-
-파이썬이나 자바스크립트가 그러한데요.
 
 괜한 부담감 때문에 시작을 미루는 것보다는 우선 실용적인 관점으로 가볍게 시작하시는 걸 추천해 드립니다.
 
