@@ -17,13 +17,15 @@ CDF = [     1,       7,      28,      84,     210,     462,     924,
 
 
 # 경쟁률이 [3.5 대 1] 이면 rate = 3.5
-def predict(rate):
-    if rate < 1.0:
-        return 0
-    percentile = (1.0 - (1.0 / rate)) * CDF[-1]
+def rate_to_percentile(rate):
+    return 0 if (rate < 1.0) else (1.0 - (1.0 / rate))
+
+# 경쟁률이 [3.5 대 1] 이면 target_percentile = 0.5
+def predict(target_percentile):
+    rank = target_percentile * CDF[-1]
     n = len(CDF)
     for idx in range(n):
-        if percentile < CDF[idx]:
+        if rank < CDF[idx]:
             return idx
     return n - 1
 
@@ -34,25 +36,32 @@ def _test():
 
     import sys
 
-    pred = predict(-sys.float_info.max)
+    percentile = rate_to_percentile(-sys.float_info.max)
+    pred = predict(percentile)
     assert pred == 0
 
-    pred = predict(0.0)
+    percentile = rate_to_percentile(0)
+    pred = predict(percentile)
     assert pred == 0
 
-    pred = predict(1 / 1e6)
+    percentile = rate_to_percentile(1/1e6)
+    pred = predict(percentile)
     assert pred == 0
 
-    pred = predict(1.0)
+    percentile = rate_to_percentile(1)
+    pred = predict(percentile)
     assert pred == 0
 
-    pred = predict(2.0)
+    percentile = rate_to_percentile(2)
+    pred = predict(percentile)
     assert pred == max_num * 0.5  # 27
 
-    pred = predict(1e6)
+    percentile = rate_to_percentile(1e6)
+    pred = predict(percentile)
     assert pred == max_num
 
-    pred = predict(sys.float_info.max)
+    percentile = rate_to_percentile(sys.float_info.max)
+    pred = predict(percentile)
     assert pred == max_num
 
 

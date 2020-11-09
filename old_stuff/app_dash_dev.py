@@ -2,6 +2,11 @@
 # 돌아만 가도록 급조된 코드입니다;;
 #
 
+# refs:
+#   https://dash.plotly.com/dash-core-components/graph
+#   https://dash.plotly.com/basic-callbacks
+#   https://dash.plotly.com/live-updates
+
 import plotly.express as px
 import dash
 from dash.dependencies import Input
@@ -18,7 +23,7 @@ _conv = [0, 10, 100, 1000, 10000, 1000000]
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-server = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 fig_pdf = px.bar(y=prob.PDF,
                  labels={'x': '숫자 합', 'y': '전체 백만 명 중 사람 수'})
@@ -32,11 +37,19 @@ fig_pdf.add_shape(type="rect",
                   )
 
 fig_pdf.update_layout(
+    # title_text='백만 명이 추첨에 참여한 경우',
     title_x=0.5,
     xaxis=dict(tickmode='linear')
 )
 
-server.layout = html.Div(children=[
+# fig_cdf = px.bar(y=prob.CDF,
+#                  labels={'x': '숫자 합', 'y': '전체 백만 명 중 사람 수 (누적)'})
+
+# fig_cdf.update_layout(
+#     xaxis=dict(tickmode='linear')
+# )
+
+app.layout = html.Div(children=[
     html.Center([
         html.Br(),
 
@@ -64,6 +77,7 @@ server.layout = html.Div(children=[
             placeholder='경쟁률',
             min=1,
             max=1e6,
+            # step=0.05,
             value=2.0,
             style={'textAlign': 'center', 'margin-bottom': '40px'}
         ),
@@ -73,15 +87,16 @@ server.layout = html.Div(children=[
             min=int(_mark[1]*0.1),
             max=1000,
             step=1,
+            # tooltip={'always_visible': True},
             marks={
                 int(_mark[1]*0.1): '1',
-                _mark[1]: f"{_conv[1]:,}",
-                _mark[2]: f"{_conv[2]:,}",
-                _mark[3]: f"{_conv[3]:,}",
-                _mark[4]: f"{_conv[4]:,}",
-                _mark[5]: f"{_conv[5]:,}",
+                _mark[1]: str(_conv[1]),
+                _mark[2]: str(_conv[2]),
+                _mark[3]: str(_conv[3]),
+                _mark[4]: str(_conv[4]),
+                _mark[5]: str(_conv[5]),
             },
-            value=int(_mark[1]*0.2),
+            value=int(_mark[1]*0.1)*2,
             updatemode='drag'
         ),
 
@@ -99,38 +114,52 @@ server.layout = html.Div(children=[
         dcc.Graph(
             id='graph-pdf',
             figure=fig_pdf,
+            # config={
+            #     'editable': True,
+            #     'edits': {
+            #         'shapePosition': True,
+            #     }
+            # }
         ),
 
-        html.A("Null - 알고리즘 설명 및 코드", href='https://null.ncsoft.com/questions/4781', target="_blank"),
+        # dcc.Graph(
+        #     id='graph-cdf',
+        #     figure=fig_cdf
+        # ),
+
+        # html.Div(id='hidden-div', style={'display': 'none'})
     ])
 ])
 
 
-def convert_slider_value(value):
+def rate_to_percentile(rate):
+    return 1.0 - (1.0 / rate)
+
+
+def convert_slider_value(val):
     for idx in range(1, len(_mark)):
-        if value <= _mark[idx]:
-            return (value - _mark[idx-1]) * (_conv[idx] - _conv[idx-1]) / (_mark[idx] - _mark[idx-1]) + _conv[idx-1]
+        if val <= _mark[idx]:
+            return (val - _mark[idx-1]) * (_conv[idx] - _conv[idx-1]) / (_mark[idx] - _mark[idx-1]) + _conv[idx-1]
 
 
-@server.callback(
+@app.callback(
     Output('graph-pdf', 'figure'),
     [Input('rate', 'value')],
     [State('graph-pdf', 'figure')])
-def update_output_input(value, fig):
-    if value is not None:
-        target_percentile = prob.rate_to_percentile(value)
-        fig['layout']['shapes'][0]['x1'] = prob.predict(target_percentile)
+def update_output_input(val, fig):
+    if val is not None:
+        fig['layout']['shapes'][0]['x1'] = prob.predict(val)
     return fig
 
 
-@server.callback(
+@app.callback(
     Output('rate', 'value'),
     [Input('rate-slider', 'value')])
 def update_output_slider(value):
     return convert_slider_value(value)
 
 
-@server.callback(
+@app.callback(
     [Output('output-warning', 'children'),
      Output('output-percentile', 'children'),
      Output('output-predict', 'children')],
@@ -139,10 +168,10 @@ def update_output_guess(value):
     if value is None:
         return [f'유효 입력 범위 : [1 ~ 백만]', f'목표 백분위 : ???', f'당첨되려면 아마도 ??? 이상이 필요할거에요~']
     else:
-        target_percentile = prob.rate_to_percentile(value)
-        pred = prob.predict(target_percentile)
-        return [f'', f'목표 백분위 : {target_percentile*100:.8f}+', f'당첨되려면 아마도 {pred} 이상이 필요할거에요~']
+        percentile = rate_to_percentile(value) * 100
+        pred = prob.predict(value)
+        return [f'', f'목표 백분위 : {percentile:.8f}+', f'당첨되려면 아마도 {pred} 이상이 필요할거에요~']
 
 
 if __name__ == '__main__':
-    server.run_server(host='0.0.0.0', port=8501, debug=False)
+    app.run_server(host='0.0.0.0', port=8501, debug=False)

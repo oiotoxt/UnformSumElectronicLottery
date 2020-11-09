@@ -7,6 +7,10 @@ docker run -d --restart=unless-stopped --name lottery01 -p=8501:8501 tmp/lottery
 ```
 
 
+```bash
+pip install gunicorn
+gunicorn  --bind 0.0.0.0:8501 app_dash:server
+```
 
 ```
 ssh -i meta.keypair.cloud.ncsoft.com.pem ubuntu@172.19.149.225

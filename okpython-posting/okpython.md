@@ -327,7 +327,7 @@ app.layout = html.Div(children=[
         html.Div(id='output-container1'),
 
         dcc.Slider(
-            id='my-slider',
+            id='rate-slider',
             min=0,
             max=10,
             step=0.05,
@@ -362,7 +362,7 @@ app.layout = html.Div(children=[
 
 
 # @app.callback(
-#     dash.dependencies.Output('my-slider', 'value'),
+#     dash.dependencies.Output('rate-slider', 'value'),
 #     [dash.dependencies.Input('competition ratio', 'value')])
 # def update_output_input(value):
 #     return value
@@ -370,13 +370,13 @@ app.layout = html.Div(children=[
 
 @app.callback(
     dash.dependencies.Output('competition ratio', 'value'),
-    [dash.dependencies.Input('my-slider', 'value')])
+    [dash.dependencies.Input('rate-slider', 'value')])
 def update_output_slider(value):
     return value
 
 @app.callback(
     dash.dependencies.Output('output-container2', 'children'),
-    [dash.dependencies.Input('my-slider', 'value')])
+    [dash.dependencies.Input('rate-slider', 'value')])
 def update_output_slider_guess(value):
     pred = prob.predict(value)
     return f'당첨되려면 아마도 {pred} 이상이 필요할거에요~'
