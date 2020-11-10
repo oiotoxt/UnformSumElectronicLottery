@@ -137,9 +137,9 @@ def rate_to_percentile(rate):
 
 
 def convert_slider_value(val):
-    for idx in range(1, len(_mark)):
-        if val <= _mark[idx]:
-            return (val - _mark[idx-1]) * (_conv[idx] - _conv[idx-1]) / (_mark[idx] - _mark[idx-1]) + _conv[idx-1]
+    for i in range(1, len(_mark)):
+        if val <= _mark[i]:
+            return (val - _mark[i-1]) * (_conv[i] - _conv[i-1]) / (_mark[i] - _mark[i-1]) + _conv[i-1]
 
 
 @app.callback(

@@ -6,16 +6,14 @@
 
 ## ② 파이썬을 통해 어떻게 해결하고자 하였나요? (접근방법, 코딩방식 등)
 
-1. 전자추첨 이해
+1. 전자 추첨 이해
 1. 당첨 숫자 예측
 1. 시각화
 
 
 
-#### 데모 : http://172.19.149.225:8501/
-
-#### 코드 : https://github.com/oiotoxt/UniformSumLottery
-
+#### 데모 : [http://172.19.148.94:8501/](http://172.19.148.94:8501/)
+(혹시 접속이 불가능한 IP 대역이 있을지도 모릅니다)
 
 
 ## ③ 이전에 비해 어떻게 또는 얼마나 개선이 되었나요? (시간단축, 파급효과 등)
@@ -30,7 +28,7 @@
 
 
 
-*파이썬을 몰라도 누구나 응용하실 수 있도록 원리 위주로 설명합니다*
+*파이썬을 몰라도 누구나 응용하실 수 있도록 원리 위주로 설명하였습니다*
 
 
 
@@ -70,8 +68,8 @@ for i0 in range(10):
                     for i5 in range(10):
                         PDF[i0 + i1 + i2 + i3 + i4 + i5] += 1
 
-for idx in range(55):
-    print(f'{idx:>2} ==> {PDF[idx]:>6,}')
+for i in range(55):
+    print(f'{i:>2} ==> {PDF[i]:>6,}')
 ```
 
 ```
@@ -96,7 +94,7 @@ for idx in range(55):
 
 그림으로 보면 다음과 같습니다.
 
-![pdf](images/pdf.png)
+![pdf.png](images/pdf.png)
 
 만약 백만 명이 추첨에 참여했다면 55,252명이 `27`을 뽑게 됩니다.
 
@@ -116,15 +114,15 @@ for idx in range(55):
 
 
 
-이 `누적 확률`을 자주 사용할 예정이어서, 숫자 별  `누적 확률`을 미리-한번-몽창 뽑아 둡니다.
+`26`까지의 `누적 확률`뿐만 아니라, 하는 김에 모든 숫자 별  `누적 확률`을 미리-한번-몽창 뽑아 둡니다.
 
 ```python
 CDF = [0] * 55  # 각 숫자합이 발생한 횟수를 누적해 가며 여기에 저장
-for idx in range(55):
-    CDF[idx] = CDF[idx-1] + PDF[idx]
+for i in range(55):
+    CDF[i] = CDF[i-1] + PDF[i]
 
-for idx in range(55):
-    print(f'{idx:>2} ==> {CDF[idx]:>9,}')
+for i in range(55):
+    print(f'{i:>2} ==> {CDF[i]:>9,}')
 ```
 
 ```
@@ -147,8 +145,7 @@ for idx in range(55):
 
 그림으로 보면 다음과 같습니다.
 
-![cdf](images/cdf.png)
-
+![cdf.png](images/cdf.png)
 
 
 #### <당첨 숫자 예측>
@@ -178,17 +175,14 @@ for idx in range(55):
 rate = 17
 print(f'경쟁률 [{rate} 대 1]')
 
-if rate < 1.0:
-    rate = 1.0
-
 percentile = 1.0 - (1.0 / rate)
 print(f'목표 백분위 : {percentile * 100.0}+')
 
 percentile *= 1000000
 predict = 0
-for idx in range(55):
-    if percentile <= CDF[idx]:
-        predict = idx
+for i in range(55):
+    if percentile < CDF[i]:
+        predict = i
         break
 
 print(f'당첨되려면 아마도 {predict} 이상이 필요할거에요~')
@@ -220,18 +214,21 @@ CDF = [     1,       7,      28,      84,     210,     462,     924,
 
 
 # 경쟁률이 [3.5 대 1] 이면 rate = 3.5
-def predict(rate):
-    if rate < 1.0:
-        rate = 1.0
-    percentile = (1.0 - (1.0 / rate)) * CDF[-1]
-    for idx in range(len(CDF)):
-        if percentile <= CDF[idx]:
-            return idx
+def rate_to_percentile(rate):
+    return 0 if (rate < 1.0) else (1.0 - (1.0 / rate))
+
+
+def predict(target_percentile):
+    rank = target_percentile * CDF[-1]
+    for i in range(len(CDF)):
+        if rank < CDF[i]:
+            return i
+    return len(CDF) - 1
 ```
 
 
 
-그리고 간단 테스트.
+마지막으로, 혹시 문제는 없는지 몇몇 값을 테스트해 봅니다.
 
 ```python
 def _test():
@@ -239,19 +236,32 @@ def _test():
 
     import sys
 
-    pred = predict(-sys.float_info.max)
+    percentile = rate_to_percentile(-sys.float_info.max)
+    pred = predict(percentile)
     assert pred == 0
 
-    pred = predict(0.0)
+    percentile = rate_to_percentile(0)
+    pred = predict(percentile)
     assert pred == 0
 
-    pred = predict(1.0)
+    percentile = rate_to_percentile(1/1e6)
+    pred = predict(percentile)
     assert pred == 0
 
-    pred = predict(2.0)
+    percentile = rate_to_percentile(1)
+    pred = predict(percentile)
+    assert pred == 0
+
+    percentile = rate_to_percentile(2)
+    pred = predict(percentile)
     assert pred == max_num * 0.5  # 27
 
-    pred = predict(sys.float_info.max)
+    percentile = rate_to_percentile(1e6)
+    pred = predict(percentile)
+    assert pred == max_num
+
+    percentile = rate_to_percentile(sys.float_info.max)
+    pred = predict(percentile)
     assert pred == max_num
 
 
@@ -263,132 +273,152 @@ if __name__ == '__main__':
 
 #### <시각화>
 
-[옆 동네](https://github.com/sorrycc/awesome-javascript#data-visualization)처럼 화려하진 않지만, 파이썬엔 좀 더 데이터 분석에 유리한 [시각화 라이브러리](https://github.com/vinta/awesome-python#data-visualization)들이 있습니다.
+링크 : [http://172.19.148.94:8501/](http://172.19.148.94:8501/)
 
-저는 [Dash](https://plotly.com/dash/)를 선택했고, 데모에 사용된 코드는 다음과 같습니다.
+![web-dash.png](images/web-dash.png)
+
+
+[Dash](https://plotly.com/dash/)를 사용했습니다.
 
 ```python
-import numpy as np
+#
+# 돌아만 가도록 급조된 코드입니다;;
+#
+
+import plotly.express as px
 import dash
+from dash.dependencies import Input
+from dash.dependencies import Output
+from dash.dependencies import State
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.express as px
-# import plotly.figure_factory as ff
 
-import prob_welldone as prob
+import lottery_prob as prob
 
+
+_mark = [0, 400, 600, 800, 900, 1000]
+_conv = [0, 10, 100, 1000, 10000, 1000000]
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
+fig_pdf = px.bar(y=prob.PDF,
+                 labels={'x': '숫자 합', 'y': '전체 백만 명 중 사람 수'})
 
-n = 10
-# array_len, n_event, PDF, norm_PDF, max_PDF, CDF = prob.create_probability_table(n)
-# fig_pdf = px.bar(PDF, x='숫자 합', y='경우의 수')
-# fig_pdf = px.bar(PDF)
-fig_pdf = px.bar(prob.PDF)
-fig_pdf.update_layout(
-    xaxis=dict(tickmode='linear')
-)
+fig_pdf.add_shape(type="rect",
+                  x0=0, y0=0, x1=27, y1=60000,
+                  line=dict(width=0),
+                  fillcolor='rgba(255, 0, 0, 0.2)')
 
-# fig_cdf = px.bar(CDF)
-# fig_cdf.update_layout(
-#     xaxis=dict(tickmode='linear')
-# )
+fig_pdf.update_layout(title_x=0.5,
+                      xaxis=dict(tickmode='linear')
+                      )
 
-# group_labels = ['prob']
-# hist_data = [norm_PDF]
-# # fig2 = ff.create_distplot(hist_data, group_labels)
-# fig_norm_pdf = px.line(norm_PDF)
-
-# bar_x = [i for i in range(array_len)]
-# bar_y = [0] * array_len
-# bar_y[27] = max_PDF
-# fig_norm_pdf.add_bar(x=bar_x, y=bar_y)
-
-app.layout = html.Div(children=[
+server.layout = html.Div(children=[
     html.Center([
-        html.H1(children='당첨 숫자 예측',
-                style={'margin-top': '40px', 'margin-bottom': '60px'}
-                ),
+        html.Br(),
 
-        html.Div(children='경쟁률을 입력하세요.'),
+        dcc.Markdown('''
+            # 당첨 숫자 예측
+        '''),
+
+        html.Br(),
+
+        dcc.Markdown('''
+            ```경쟁률이 [3.5 대 1] 이라면 [3.5]를 입력하시거나,```
+        '''),
+
+        dcc.Markdown('''
+            ```아래 <슬라이드바>에서 [3.5]를 선택해 주세요.```
+        '''),
+
+        html.Div(id='output-warning',
+                 style={'color': 'red', 'margin-bottom': '0px'}),
 
         dcc.Input(
-            id='competition ratio',
+            id='rate',
             type='number',
-            placeholder='2.0',
-            min=0,
-            step=0.05,
-            style={'margin-bottom': '40px'}
-        ),
-
-        html.Div(id='output-container1'),
+            placeholder='경쟁률',
+            min=1,
+            max=1e6,
+            value=2.0,
+            style={'textAlign': 'center', 'margin-bottom': '40px'}),
 
         dcc.Slider(
             id='rate-slider',
-            min=0,
-            max=10,
-            step=0.05,
-            tooltip={'always_visible': True},
+            min=int(_mark[1]*0.1),
+            max=1000,
+            step=1,
             marks={
-                0: '0.0',
-                10: '10.0'
+                int(_mark[1]*0.1): '1',
+                _mark[1]: f"{_conv[1]:,}",
+                _mark[2]: f"{_conv[2]:,}",
+                _mark[3]: f"{_conv[3]:,}",
+                _mark[4]: f"{_conv[4]:,}",
+                _mark[5]: f"{_conv[5]:,}",
             },
-            value=2.0,
-        ),
+            value=int(_mark[1]*0.2),
+            updatemode='drag'),
 
-        html.Div(id='output-container2'),
+        html.Div(id='output-predict',
+                 style={'font-weight': 'bold',
+                        'font-size': '2.0em',
+                        'margin-top': '60px',
+                        'margin-bottom': '0px'}),
 
-        dcc.Graph(
-            id='graph pdf',
-            figure=fig_pdf
-        ),
+        html.Div(id='output-percentile',
+                 style={'margin-top': '0px', 'margin-bottom': '0px'}),
 
-        # dcc.Graph(
-        #     id='graph cdf',
-        #     figure=fig_cdf
-        # ),
+        dcc.Graph(id='graph-pdf',
+                  figure=fig_pdf),
 
-        # dcc.Graph(
-        #     id='example-graph',
-        #     figure=fig_norm_pdf
-        # )
-
-        html.Div(id='out-all-types')
+        html.A("Null - 알고리즘 설명 및 코드",
+               href='https://null.ncsoft.com/questions/4781', target="_blank"),
     ])
 ])
 
 
-# @app.callback(
-#     dash.dependencies.Output('rate-slider', 'value'),
-#     [dash.dependencies.Input('competition ratio', 'value')])
-# def update_output_input(value):
-#     return value
+def convert_slider_value(value):
+    for i in range(1, len(_mark)):
+        if value <= _mark[i]:
+            return (value - _mark[i-1]) * (_conv[i] - _conv[i-1]) / (_mark[i] - _mark[i-1]) + _conv[i-1]
 
 
-@app.callback(
-    dash.dependencies.Output('competition ratio', 'value'),
-    [dash.dependencies.Input('rate-slider', 'value')])
+@server.callback(
+    Output('graph-pdf', 'figure'),
+    [Input('rate', 'value')],
+    [State('graph-pdf', 'figure')])
+def update_output_input(value, fig):
+    if value is not None:
+        target_percentile = prob.rate_to_percentile(value)
+        fig['layout']['shapes'][0]['x1'] = prob.predict(target_percentile)
+    return fig
+
+
+@server.callback(
+    Output('rate', 'value'),
+    [Input('rate-slider', 'value')])
 def update_output_slider(value):
-    return value
+    return convert_slider_value(value)
 
-@app.callback(
-    dash.dependencies.Output('output-container2', 'children'),
-    [dash.dependencies.Input('rate-slider', 'value')])
-def update_output_slider_guess(value):
-    pred = prob.predict(value)
-    return f'당첨되려면 아마도 {pred} 이상이 필요할거에요~'
+
+@server.callback(
+    [Output('output-warning', 'children'),
+     Output('output-percentile', 'children'),
+     Output('output-predict', 'children')],
+    [Input('rate', 'value')])
+def update_output_guess(value):
+    if value is None:
+        return [f'유효 입력 범위 : [1 ~ 백만]', f'목표 백분위 : ???', f'당첨되려면 아마도 ??? 이상이 필요할거에요~']
+    else:
+        target_percentile = prob.rate_to_percentile(value)
+        pred = prob.predict(target_percentile)
+        return [f'', f'목표 백분위 : {target_percentile*100:.8f}+', f'당첨되려면 아마도 {pred} 이상이 필요할거에요~']
 
 
 if __name__ == '__main__':
-    app.run_server(host='0.0.0.0', port=8501, debug=True)
-
-
-# pip install dash==1.16.3 plotly pandas scipy
-# http://127.0.0.1:8050/
-# http://meta.nctts.net:8050/
+    server.run_server(host='0.0.0.0', port=8501, debug=False)
 ```
 
 
@@ -401,17 +431,17 @@ if __name__ == '__main__':
 
 ## ⑤ 파이썬을 공부하고 있는 사우들에게 Tip을 주고 싶은 것이 있다면요?
 
-바로 써먹기 좋은 언어는 내부 작동 원리를 이해하기가 오히려 어렵습니다.
+"파이썬 한번 해볼까?" 생각 중이신 분들에게 Tip을 드리자면,
 
-파이썬이나 자바스크립트가 그러한데요.
+바로 써먹기 좋은 언어는 내부 작동 원리를 이해하기가 오히려 어렵더군요.
 
-부담 갖지 말고 실용적인 관점에서 접근하는 것이 이런 언어들의 장점을 잘 활용하는 방법이라고 생각합니다.
+괜한 부담감 때문에 시작을 미루는 것보다는 우선 실용적인 관점으로 가볍게 시작하시는 걸 추천해 드립니다.
 
 모니터에 늘 `창` 하나 켜 두고, 계산기 대용으로 사용해 보시는 것도 좋을 것 같습니다.
 
 어떤 `창`을 켜 두는 게 좋을까 생각해보면,
 
-- [IPython](https://ipython.org/)을 실행한 터미널(도스창)
+- [IPython](https://ipython.org/)을 실행한 터미널
 - [쥬피터 노트북](https://jupyter.org/) ( [Colab](https://colab.research.google.com/)처럼 온라인 무료 서비스도 많습니다 )
 - [비쥬얼 스튜디오 코드](https://code.visualstudio.com/) + [파이썬 확장](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
 
@@ -419,23 +449,12 @@ if __name__ == '__main__':
 
 
 
-만약 게임프로그래머라면 이런 코드에 흥미를 느끼실지도 모르겠네요.
+만약 게임프로그래머라면 다음과 같은 코드에 흥미를 느끼실지도 모르겠네요.
 
 - [몇 백 줄로 만든 마인크래프트](https://github.com/fogleman/Minecraft)
 
 
 
-사실.. 꼭 파이썬을 고집할 이유도 없습니다.
-
-언젠가 Web이나 App을 만들고 싶으시다면 자바스크립트(Node, React)가 더 나은 선택지입니다.
-
-치킨집을 열고 웹도 만든다거나..
-
-치킨집은 닫고 앱만 만든다거나..
-
-
-
-마지막으로 눈요기용(?) 링크 하나 남깁니다.
+마지막으로 눈요기용 링크 하나 남깁니다.
 
 - [깝놀 파이썬](https://github.com/vinta/awesome-python)
-

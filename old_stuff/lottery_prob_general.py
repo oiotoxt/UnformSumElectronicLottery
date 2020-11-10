@@ -42,9 +42,9 @@ def predict(rate, CDF):
     percentile = 1.0 - (1.0 / rate)
     print(f'Target percentile : {percentile * 100.0}+')
     percentile *= CDF[-1]
-    for idx in range(len(CDF)):
-        if percentile <= CDF[idx]:
-            return idx
+    for i in range(len(CDF)):
+        if percentile <= CDF[i]:
+            return i
     raise Exception('hmm')
 
 # pre-calc

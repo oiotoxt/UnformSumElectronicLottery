@@ -12,9 +12,9 @@ function predict(rate) {
     if (rate < 1) return 0;
     var pct = (1 - (1 / rate)) * CDF[CDF.length-1];
     n = CDF.length
-    for (idx=0; idx<n; ++idx)
-        if (pct < CDF[idx])
-            return idx;
+    for (i=0; i<n; ++i)
+        if (pct < CDF[i])
+            return i;
     return n - 1
 }
 

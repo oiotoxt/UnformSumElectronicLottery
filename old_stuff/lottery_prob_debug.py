@@ -25,10 +25,10 @@ def predict_debug(rate):
     rank = percentile * CDF[-1]
     print(f'rate={rate}, percentile={percentile}, rank={rank}')
     n = len(CDF)
-    for idx in range(n):
-        if rank <= CDF[idx]:
-            print(f'percentile={percentile}, CDF[idx]={CDF[idx]}, idx={idx}')
-            return idx
+    for i in range(n):
+        if rank <= CDF[i]:
+            print(f'percentile={percentile}, CDF[i]={CDF[i]}, i={i}')
+            return i
 
 
 # 경쟁률이 [3.5 대 1] 이면 rate = 3.5
@@ -37,9 +37,9 @@ def predict(rate):
         rate = 1.0
     percentile = (1.0 - (1.0 / rate)) * CDF[-1]
     n = len(CDF)
-    for idx in range(n):
-        if percentile < CDF[idx]:
-            return idx
+    for i in range(n):
+        if percentile < CDF[i]:
+            return i
     return n - 1
 
 
@@ -50,9 +50,9 @@ def predict_old(rate):
     if rate < 1.0:
         rate = 1.0
     percentile = (1.0 - (1.0 / rate)) * CDF[-1]
-    for idx in range(len(CDF)):
-        if percentile <= CDF[idx]:
-            return idx
+    for i in range(len(CDF)):
+        if percentile <= CDF[i]:
+            return i
 
 
 # 몇몇 특이값으로 테스트

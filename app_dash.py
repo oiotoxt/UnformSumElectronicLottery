@@ -25,16 +25,12 @@ fig_pdf = px.bar(y=prob.PDF,
 
 fig_pdf.add_shape(type="rect",
                   x0=0, y0=0, x1=27, y1=60000,
-                  line=dict(
-                      width=0,
-                  ),
-                  fillcolor='rgba(255, 0, 0, 0.2)',
-                  )
+                  line=dict(width=0),
+                  fillcolor='rgba(255, 0, 0, 0.2)')
 
-fig_pdf.update_layout(
-    title_x=0.5,
-    xaxis=dict(tickmode='linear')
-)
+fig_pdf.update_layout(title_x=0.5,
+                      xaxis=dict(tickmode='linear')
+                      )
 
 server.layout = html.Div(children=[
     html.Center([
@@ -55,8 +51,7 @@ server.layout = html.Div(children=[
         '''),
 
         html.Div(id='output-warning',
-                 style={'color': 'red', 'margin-bottom': '0px'}
-                 ),
+                 style={'color': 'red', 'margin-bottom': '0px'}),
 
         dcc.Input(
             id='rate',
@@ -65,8 +60,7 @@ server.layout = html.Div(children=[
             min=1,
             max=1e6,
             value=2.0,
-            style={'textAlign': 'center', 'margin-bottom': '40px'}
-        ),
+            style={'textAlign': 'center', 'margin-bottom': '40px'}),
 
         dcc.Slider(
             id='rate-slider',
@@ -82,34 +76,30 @@ server.layout = html.Div(children=[
                 _mark[5]: f"{_conv[5]:,}",
             },
             value=int(_mark[1]*0.2),
-            updatemode='drag'
-        ),
+            updatemode='drag'),
 
         html.Div(id='output-predict',
                  style={'font-weight': 'bold',
                         'font-size': '2.0em',
                         'margin-top': '60px',
-                        'margin-bottom': '0px'}
-                 ),
+                        'margin-bottom': '0px'}),
 
         html.Div(id='output-percentile',
-                 style={'margin-top': '0px', 'margin-bottom': '0px'}
-                 ),
+                 style={'margin-top': '0px', 'margin-bottom': '0px'}),
 
-        dcc.Graph(
-            id='graph-pdf',
-            figure=fig_pdf,
-        ),
+        dcc.Graph(id='graph-pdf',
+                  figure=fig_pdf),
 
-        html.A("Null - 알고리즘 설명 및 코드", href='https://null.ncsoft.com/questions/4781', target="_blank"),
+        html.A("Null - 알고리즘 설명 및 코드",
+               href='https://null.ncsoft.com/questions/4781', target="_blank"),
     ])
 ])
 
 
 def convert_slider_value(value):
-    for idx in range(1, len(_mark)):
-        if value <= _mark[idx]:
-            return (value - _mark[idx-1]) * (_conv[idx] - _conv[idx-1]) / (_mark[idx] - _mark[idx-1]) + _conv[idx-1]
+    for i in range(1, len(_mark)):
+        if value <= _mark[i]:
+            return (value - _mark[i-1]) * (_conv[i] - _conv[i-1]) / (_mark[i] - _mark[i-1]) + _conv[i-1]
 
 
 @server.callback(
